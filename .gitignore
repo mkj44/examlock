@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build and Release Outputs
+dist/
+release/
+build/
+
+# IDE & OS Files
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Temporary session logs
+userData/
+sessions/
