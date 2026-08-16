@@ -255,6 +255,62 @@ ipcMain.handle('export-report', async (_event, report: SessionReport, format: 'j
   }
 });
 
+// Auto-Save Session Report to Local Archive & Post to Server Webhook
+ipcMain.handle('save-session-report', async (_event, report: SessionReport, webhookUrl?: string) => {
+  try {
+    const reportsDir = path.join(app.getPath('userData'), 'proctor_reports');
+    fs.mkdirSync(reportsDir, { recursive: true });
+
+    const filename = `report_${report.candidateId}_${report.sessionId}.json`;
+    const filePath = path.join(reportsDir, filename);
+    fs.writeFileSync(filePath, JSON.stringify(report, null, 2), 'utf-8');
+
+    let webhookStatus = 'NOT_CONFIGURED';
+
+    if (webhookUrl && webhookUrl.trim().startsWith('http')) {
+      try {
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(report),
+        });
+        webhookStatus = response.ok ? 'SUCCESS' : `HTTP_${response.status}`;
+      } catch (err: any) {
+        webhookStatus = `FAILED: ${err?.message || 'Network error'}`;
+      }
+    }
+
+    return { success: true, savedPath: filePath, webhookStatus };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to save report' };
+  }
+});
+
+// Retrieve All Past Proctoring Session Reports for Examiner Vault
+ipcMain.handle('get-all-past-reports', async () => {
+  try {
+    const reportsDir = path.join(app.getPath('userData'), 'proctor_reports');
+    if (!fs.existsSync(reportsDir)) return [];
+
+    const files = fs.readdirSync(reportsDir).filter((f) => f.endsWith('.json'));
+    const reports: SessionReport[] = [];
+
+    for (const file of files) {
+      try {
+        const content = fs.readFileSync(path.join(reportsDir, file), 'utf-8');
+        const parsed = JSON.parse(content);
+        reports.push(parsed);
+      } catch (e) {}
+    }
+
+    // Sort newest first
+    reports.sort((a, b) => new Date(b.endTime).getTime() - new Date(a.endTime).getTime());
+    return reports;
+  } catch (err) {
+    return [];
+  }
+});
+
 app.whenReady().then(() => {
   createWindow();
 

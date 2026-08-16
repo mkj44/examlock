@@ -8,6 +8,7 @@ export interface ExamConfig {
   webcamEnabled: boolean;
   allowCopyPaste: boolean;
   consentGiven: boolean;
+  reportWebhookUrl?: string;
 }
 
 export type SecurityEventType = 
@@ -69,6 +70,8 @@ export interface ExamLockAPI {
   getSystemInfo: () => Promise<SystemInfo>;
   logEvent: (event: Omit<SecurityEvent, 'id' | 'timestamp' | 'rawTimestamp'>) => Promise<void>;
   saveSnapshot: (dataUrl: string) => Promise<string>;
+  saveSessionReport: (report: SessionReport, webhookUrl?: string) => Promise<{ success: boolean; savedPath?: string; webhookStatus?: string }>;
+  getAllPastReports: () => Promise<SessionReport[]>;
   exportReport: (report: SessionReport, format: 'json' | 'pdf') => Promise<{ success: boolean; filePath?: string; error?: string }>;
   onWindowBlur: (callback: () => void) => () => void;
   onWindowFocus: (callback: () => void) => () => void;

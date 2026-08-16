@@ -60,6 +60,17 @@ export const PostTestReport: React.FC<PostTestReportProps> = ({
     snapshots,
   };
 
+  // Auto-Save Report to Examiner Audit Vault & Remote Webhook on completion
+  React.useEffect(() => {
+    if (window.examLockAPI?.saveSessionReport) {
+      window.examLockAPI.saveSessionReport(sessionReport, config.reportWebhookUrl).then((res) => {
+        if (res.webhookStatus && res.webhookStatus !== 'NOT_CONFIGURED') {
+          setExportMessage(`Report synced to server webhook status: ${res.webhookStatus}`);
+        }
+      });
+    }
+  }, []);
+
   const filteredEvents = events.filter((evt) => {
     if (filterType === 'ALL') return true;
     if (filterType === 'FOCUS') return evt.type === 'FOCUS_LOST' || evt.type === 'FOCUS_REGAINED';

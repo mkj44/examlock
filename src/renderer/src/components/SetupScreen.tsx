@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ExamConfig, SystemInfo } from '../../../types/examlock';
-import { Shield, ShieldAlert, Monitor, Camera, Lock, CheckSquare, Square, ExternalLink, Play, Info } from 'lucide-react';
+import { AdminVaultModal } from './AdminVaultModal';
+import { Shield, ShieldAlert, Monitor, Camera, Lock, CheckSquare, Square, ExternalLink, Play, Info, Globe } from 'lucide-react';
 
 interface SetupScreenProps {
   onStartTest: (config: ExamConfig) => void;
@@ -14,6 +15,8 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStartTest }) => {
   const [durationMinutes, setDurationMinutes] = useState(45);
   const [webcamEnabled, setWebcamEnabled] = useState(true);
   const [allowCopyPaste, setAllowCopyPaste] = useState(false);
+  const [reportWebhookUrl, setReportWebhookUrl] = useState('');
+  const [adminVaultOpen, setAdminVaultOpen] = useState(false);
 
   // Consent Checkboxes
   const [consentFocus, setConsentFocus] = useState(false);
@@ -93,6 +96,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStartTest }) => {
       webcamEnabled,
       allowCopyPaste,
       consentGiven: true,
+      reportWebhookUrl: reportWebhookUrl.trim(),
     });
   };
 
@@ -113,6 +117,15 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStartTest }) => {
         </div>
 
         <div className="flex items-center space-x-4 font-mono text-xs">
+          <button
+            type="button"
+            onClick={() => setAdminVaultOpen(true)}
+            className="flex items-center space-x-2 bg-soc-accent/20 border border-soc-accent hover:bg-soc-accent text-soc-accent hover:text-white px-3 py-1.5 rounded-sm transition-colors cursor-pointer"
+          >
+            <Shield className="w-3.5 h-3.5" />
+            <span className="font-semibold">EXAMINER AUDIT VAULT</span>
+          </button>
+
           <div className="flex items-center space-x-2 bg-soc-panel border border-soc-border px-3 py-1 rounded-sm">
             <span className="w-2 h-2 rounded-full bg-soc-green"></span>
             <span className="text-soc-muted">STATUS:</span>
@@ -389,6 +402,12 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStartTest }) => {
           </div>
         </div>
       </main>
+
+      {/* Admin / Examiner Audit Vault Modal */}
+      <AdminVaultModal
+        isOpen={adminVaultOpen}
+        onClose={() => setAdminVaultOpen(false)}
+      />
     </div>
   );
 };

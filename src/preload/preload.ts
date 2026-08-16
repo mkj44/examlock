@@ -7,6 +7,8 @@ contextBridge.exposeInMainWorld('examLockAPI', {
   getSystemInfo: (): Promise<SystemInfo> => ipcRenderer.invoke('get-system-info'),
   logEvent: (event: Omit<SecurityEvent, 'id' | 'timestamp' | 'rawTimestamp'>) => ipcRenderer.invoke('log-event', event),
   saveSnapshot: (dataUrl: string) => ipcRenderer.invoke('save-snapshot', dataUrl),
+  saveSessionReport: (report: SessionReport, webhookUrl?: string) => ipcRenderer.invoke('save-session-report', report, webhookUrl),
+  getAllPastReports: (): Promise<SessionReport[]> => ipcRenderer.invoke('get-all-past-reports'),
   exportReport: (report: SessionReport, format: 'json' | 'pdf') => ipcRenderer.invoke('export-report', report, format),
 
   onWindowBlur: (callback: () => void) => {
