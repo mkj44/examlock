@@ -292,9 +292,22 @@ ipcMain.handle('save-session-report', async (_event, report: SessionReport, webh
         const db = client.db('examlock');
         const collection = db.collection('proctor_reports');
 
+        // Sanitize report payload to prevent 16MB BSON size limit error from base64 images
+        const sanitizedSnapshots = (report.snapshots || []).map((s) => ({
+          timestamp: s.timestamp,
+          dataUrl: s.dataUrl ? `${s.dataUrl.substring(0, 80)}...[SAVED_LOCALLY]` : '',
+        }));
+
+        const mongoDoc = {
+          ...report,
+          snapshotsCount: report.snapshots?.length || 0,
+          snapshots: sanitizedSnapshots,
+          updatedAt: new Date(),
+        };
+
         await collection.updateOne(
           { sessionId: report.sessionId },
-          { $set: report },
+          { $set: mongoDoc },
           { upsert: true }
         );
 
