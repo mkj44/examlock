@@ -17,6 +17,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStartTest }) => {
   const [allowCopyPaste, setAllowCopyPaste] = useState(false);
   const [reportWebhookUrl, setReportWebhookUrl] = useState('');
   const [adminEmail, setAdminEmail] = useState('admin@company.com');
+  const [mongoDbUri, setMongoDbUri] = useState('');
   const [adminVaultOpen, setAdminVaultOpen] = useState(false);
 
   // Consent Checkboxes
@@ -99,6 +100,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStartTest }) => {
       consentGiven: true,
       reportWebhookUrl: reportWebhookUrl.trim(),
       adminEmail: adminEmail.trim(),
+      mongoDbUri: mongoDbUri.trim(),
     });
   };
 
@@ -290,6 +292,19 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStartTest }) => {
                     value={reportWebhookUrl}
                     onChange={(e) => setReportWebhookUrl(e.target.value)}
                     placeholder="https://api.yourcompany.com/proctor-reports"
+                    className="w-full bg-soc-bg border border-soc-border focus:border-soc-accent px-3 py-1.5 text-xs font-mono text-soc-text outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-soc-muted mb-1 uppercase">
+                    MongoDB Atlas Connection URI (Cloud Database Auto-Sync)
+                  </label>
+                  <input
+                    type="text"
+                    value={mongoDbUri}
+                    onChange={(e) => setMongoDbUri(e.target.value)}
+                    placeholder="mongodb+srv://admin:password@cluster.mongodb.net/examlock"
                     className="w-full bg-soc-bg border border-soc-border focus:border-soc-accent px-3 py-1.5 text-xs font-mono text-soc-text outline-none"
                   />
                 </div>

@@ -10,6 +10,7 @@ export interface ExamConfig {
   consentGiven: boolean;
   reportWebhookUrl?: string;
   adminEmail?: string;
+  mongoDbUri?: string;
 }
 
 export type SecurityEventType = 

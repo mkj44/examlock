@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, globalShortcut, screen, dialog, webContent
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
+import { MongoClient } from 'mongodb';
 import { ExamConfig, SecurityEvent, SessionReport, SystemInfo } from '../types/examlock';
 
 let mainWindow: BrowserWindow | null = null;
@@ -255,7 +256,7 @@ ipcMain.handle('export-report', async (_event, report: SessionReport, format: 'j
   }
 });
 
-// Auto-Save Session Report to Local Archive & Post to Server Webhook
+// Auto-Save Session Report to Local Archive, MongoDB Atlas, & Webhook
 ipcMain.handle('save-session-report', async (_event, report: SessionReport, webhookUrl?: string) => {
   try {
     const reportsDir = path.join(app.getPath('userData'), 'proctor_reports');
@@ -267,6 +268,7 @@ ipcMain.handle('save-session-report', async (_event, report: SessionReport, webh
 
     let webhookStatus = 'NOT_CONFIGURED';
 
+    // 1. Post to HTTP Webhook if configured
     if (webhookUrl && webhookUrl.trim().startsWith('http')) {
       try {
         const response = await fetch(webhookUrl, {
@@ -280,15 +282,60 @@ ipcMain.handle('save-session-report', async (_event, report: SessionReport, webh
       }
     }
 
+    // 2. Insert into MongoDB Atlas Cloud Database if configured
+    const mongoUri = currentConfig?.mongoDbUri || process.env.MONGODB_URI;
+    if (mongoUri && mongoUri.trim().startsWith('mongodb')) {
+      try {
+        const client = new MongoClient(mongoUri);
+        await client.connect();
+        const db = client.db('examlock');
+        const collection = db.collection('proctor_reports');
+
+        await collection.updateOne(
+          { sessionId: report.sessionId },
+          { $set: report },
+          { upsert: true }
+        );
+
+        await client.close();
+        webhookStatus += ' (MONGODB_SYNCED)';
+      } catch (mongoErr: any) {
+        console.error('MongoDB sync failed:', mongoErr);
+      }
+    }
+
     return { success: true, savedPath: filePath, webhookStatus };
   } catch (err: any) {
     return { success: false, error: err?.message || 'Failed to save report' };
   }
 });
 
-// Retrieve All Past Proctoring Session Reports for Examiner Vault
+// Retrieve All Past Proctoring Session Reports (from MongoDB Atlas or Local Filesystem)
 ipcMain.handle('get-all-past-reports', async () => {
   try {
+    const mongoUri = currentConfig?.mongoDbUri || process.env.MONGODB_URI;
+
+    // If MongoDB Atlas URI is configured, fetch global candidate reports from MongoDB
+    if (mongoUri && mongoUri.trim().startsWith('mongodb')) {
+      try {
+        const client = new MongoClient(mongoUri);
+        await client.connect();
+        const db = client.db('examlock');
+        const collection = db.collection('proctor_reports');
+
+        const docs = await collection.find({}).sort({ endTime: -1 }).toArray();
+        await client.close();
+
+        return docs.map((doc) => {
+          const { _id, ...rest } = doc;
+          return rest as SessionReport;
+        });
+      } catch (e) {
+        console.error('Failed to fetch from MongoDB, falling back to local files:', e);
+      }
+    }
+
+    // Local Filesystem Fallback
     const reportsDir = path.join(app.getPath('userData'), 'proctor_reports');
     if (!fs.existsSync(reportsDir)) return [];
 
