@@ -17,7 +17,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStartTest }) => {
   const [allowCopyPaste, setAllowCopyPaste] = useState(false);
   const [reportWebhookUrl, setReportWebhookUrl] = useState('');
   const [adminEmail, setAdminEmail] = useState('admin@company.com');
-  const [mongoDbUri, setMongoDbUri] = useState('');
+  const [mongoDbUri, setMongoDbUri] = useState('mongodb+srv://examlock:examgfg47@cluster0.jhpneuc.mongodb.net/examlock');
   const [adminVaultOpen, setAdminVaultOpen] = useState(false);
 
   // Consent Checkboxes

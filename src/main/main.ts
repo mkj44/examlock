@@ -282,8 +282,9 @@ ipcMain.handle('save-session-report', async (_event, report: SessionReport, webh
       }
     }
 
-    // 2. Insert into MongoDB Atlas Cloud Database if configured
-    const mongoUri = currentConfig?.mongoDbUri || process.env.MONGODB_URI;
+    // 2. Insert into MongoDB Atlas Cloud Database
+    const DEFAULT_MONGO = 'mongodb+srv://examlock:examgfg47@cluster0.jhpneuc.mongodb.net/examlock';
+    const mongoUri = currentConfig?.mongoDbUri || process.env.MONGODB_URI || DEFAULT_MONGO;
     if (mongoUri && mongoUri.trim().startsWith('mongodb')) {
       try {
         const client = new MongoClient(mongoUri);
@@ -313,7 +314,8 @@ ipcMain.handle('save-session-report', async (_event, report: SessionReport, webh
 // Retrieve All Past Proctoring Session Reports (from MongoDB Atlas or Local Filesystem)
 ipcMain.handle('get-all-past-reports', async () => {
   try {
-    const mongoUri = currentConfig?.mongoDbUri || process.env.MONGODB_URI;
+    const DEFAULT_MONGO = 'mongodb+srv://examlock:examgfg47@cluster0.jhpneuc.mongodb.net/examlock';
+    const mongoUri = currentConfig?.mongoDbUri || process.env.MONGODB_URI || DEFAULT_MONGO;
 
     // If MongoDB Atlas URI is configured, fetch global candidate reports from MongoDB
     if (mongoUri && mongoUri.trim().startsWith('mongodb')) {
