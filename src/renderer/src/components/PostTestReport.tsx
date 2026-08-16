@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ExamConfig, SecurityEvent, SessionReport, SystemInfo } from '../../../types/examlock';
 import { generatePDFReport } from '../utils/reportGenerator';
+import { downloadCSVFile } from '../utils/csvGenerator';
 import { Shield, ShieldCheck, ShieldAlert, Download, FileText, ArrowLeft, Clock, Monitor, Camera, Filter, CheckCircle2 } from 'lucide-react';
 
 interface PostTestReportProps {
@@ -213,18 +214,29 @@ export const PostTestReport: React.FC<PostTestReportProps> = ({
             </h2>
 
             {/* Export Action Buttons */}
-            <div className="flex items-center space-x-3 font-mono text-xs">
+            <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
               <button
-                onClick={handleExportPDF}
-                className="flex items-center space-x-2 bg-soc-accent hover:bg-soc-accentHover text-white px-3 py-1.5 font-semibold cursor-pointer transition-colors"
+                onClick={() => {
+                  downloadCSVFile(sessionReport);
+                  setExportMessage('Downloaded Proctoring CSV Audit Summary file.');
+                }}
+                className="flex items-center space-x-1.5 bg-soc-greenBg border border-soc-green text-soc-green hover:bg-soc-green hover:text-white px-3 py-1.5 font-semibold cursor-pointer transition-colors"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>EXPORT PDF REPORT</span>
+                <span>EXPORT CSV AUDIT</span>
+              </button>
+
+              <button
+                onClick={handleExportPDF}
+                className="flex items-center space-x-1.5 bg-soc-accent hover:bg-soc-accentHover text-white px-3 py-1.5 font-semibold cursor-pointer transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>EXPORT PDF</span>
               </button>
 
               <button
                 onClick={handleExportJSON}
-                className="flex items-center space-x-2 bg-soc-bg border border-soc-border hover:border-soc-borderHover text-soc-text px-3 py-1.5 font-semibold cursor-pointer transition-colors"
+                className="flex items-center space-x-1.5 bg-soc-bg border border-soc-border hover:border-soc-borderHover text-soc-text px-3 py-1.5 font-semibold cursor-pointer transition-colors"
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>EXPORT JSON</span>

@@ -9,6 +9,7 @@ export interface ExamConfig {
   allowCopyPaste: boolean;
   consentGiven: boolean;
   reportWebhookUrl?: string;
+  adminEmail?: string;
 }
 
 export type SecurityEventType = 

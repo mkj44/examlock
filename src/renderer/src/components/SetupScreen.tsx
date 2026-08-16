@@ -16,6 +16,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStartTest }) => {
   const [webcamEnabled, setWebcamEnabled] = useState(true);
   const [allowCopyPaste, setAllowCopyPaste] = useState(false);
   const [reportWebhookUrl, setReportWebhookUrl] = useState('');
+  const [adminEmail, setAdminEmail] = useState('admin@company.com');
   const [adminVaultOpen, setAdminVaultOpen] = useState(false);
 
   // Consent Checkboxes
@@ -97,6 +98,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStartTest }) => {
       allowCopyPaste,
       consentGiven: true,
       reportWebhookUrl: reportWebhookUrl.trim(),
+      adminEmail: adminEmail.trim(),
     });
   };
 
@@ -261,6 +263,35 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStartTest }) => {
                   <label htmlFor="copyPasteToggle" className="text-xs font-mono text-soc-text cursor-pointer">
                     Allow Clipboard (Copy / Paste)
                   </label>
+                </div>
+              </div>
+
+              {/* Admin Delivery & Webhook Sync Input */}
+              <div className="pt-3 border-t border-soc-border space-y-3">
+                <div>
+                  <label className="block text-xs font-mono text-soc-muted mb-1 uppercase">
+                    Admin / Examiner Email (CSV Audit Report Recipient)
+                  </label>
+                  <input
+                    type="email"
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    placeholder="proctor@company.com"
+                    className="w-full bg-soc-bg border border-soc-border focus:border-soc-accent px-3 py-1.5 text-xs font-mono text-soc-text outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-soc-muted mb-1 uppercase">
+                    Central Server Webhook URL (Optional Auto-Sync)
+                  </label>
+                  <input
+                    type="url"
+                    value={reportWebhookUrl}
+                    onChange={(e) => setReportWebhookUrl(e.target.value)}
+                    placeholder="https://api.yourcompany.com/proctor-reports"
+                    className="w-full bg-soc-bg border border-soc-border focus:border-soc-accent px-3 py-1.5 text-xs font-mono text-soc-text outline-none"
+                  />
                 </div>
               </div>
             </div>
