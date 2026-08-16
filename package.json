@@ -45,6 +45,11 @@
   "build": {
     "appId": "com.examlock.app",
     "productName": "ExamLock",
+    "publish": {
+      "provider": "github",
+      "owner": "mkj44",
+      "repo": "examlock"
+    },
     "directories": {
       "output": "release"
     },
